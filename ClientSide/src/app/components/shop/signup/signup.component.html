@@ -1,15 +1,16 @@
-<form #f="ngForm" (ngSubmit)="newShop()" class="container wrap">
+<form #f="ngForm" (ngSubmit)="newShop()" class="container wrap" name="myForm">
     <div class="row">
 
-        <div class="col-sm-6">
+        <div class="col-sm-6" #div1>
 
-            <div class="row" margin-bottom="10px">
+            <div class="row" margin-bottom="10px" #div2>
                 <div class="col-sm-6">
                     <label for="name">שם</label>
                 </div>
                 <div class="col-sm-6">
                     <input #name type="text" class="form-control" name="name" [(ngModel)]="shop.nameShop" placeholder="הקלד שם חנות"
                         required>
+                        <p class="text-danger" *ngIf="">הכנס שם</p>
                 </div>
             </div>
             <div class="row">

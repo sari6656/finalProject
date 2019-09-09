@@ -18,6 +18,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { GooglePlaceModule } from "ngx-google-places-autocomplete";
 import { SingoutComponent } from './components/shop/singout/singout.component';
 import { AddNewCategoryComponent } from './components/category/add-new-category/add-new-category.component';
+import { StatisticsComponent } from './components/shop/statistics/statistics.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { AddNewCategoryComponent } from './components/category/add-new-category/
     ShowcategoryComponent,
     UpdateComponent,
     SingoutComponent,
-    AddNewCategoryComponent
+    AddNewCategoryComponent,
+    StatisticsComponent
   ],
   imports: [
     BrowserModule,

@@ -25,7 +25,7 @@ namespace BL
             };
         }
         //יצירה
-        public static WebResult<SearchDTO> Create(SearchDTO search)
+        public static WebResult<SearchDTO> Create(SearchDTO searchDTO)
         {
             //אילו בדיקות בודקים??????????????????????
             //Has found תמיד צריך להגיע false
@@ -36,14 +36,14 @@ namespace BL
                     Status = false,
                     Value = null
                 };
-            search.codeUser = (HttpContext.Current.Session["User"] as User).codeUser;
-            db.Searches.Add(SearchCast.GetSearch(search));
+            searchDTO.codeUser = (HttpContext.Current.Session["User"] as User).codeUser;
+            db.Searches.Add(SearchCast.GetSearch(searchDTO));
             db.SaveChanges();
             return new WebResult<SearchDTO>
             {
-                Message = "יצירת חיפוש בוצע בהצלחה",
+                Message = "יצירת חיפוש בוצעה בהצלחה",
                 Status = true,
-                Value = search
+                Value = searchDTO
             };
         }
         //מחיקת חיפוש- המשתמש התחרט
@@ -97,19 +97,21 @@ namespace BL
         }
         //פונקציה שמחזירה למשתמש את כל החיפושים שלו כולל אלו שמצא
         //מה עדיף? לקבל אובייקט של משתמש או רק המזהה, כי אם נקבל אובייקט נוכל מיד לגשת לרשימה של החיפושים???????????
-        public static WebResult<List<SearchDTO>> GetSearchesByUserId(int userId)
+        public static WebResult<List<SearchDTO>> GetSearchesByUserId()
         {
-            if ((HttpContext.Current.Session["User"] as User).codeUser != userId)
+            if ((HttpContext.Current.Session["User"] as User)==null)
                 return new WebResult<List<SearchDTO>>
                 {
                     Message = "שגיאת אבטחה, משתמש לא תואם",
                     Value = null,
                     Status = false
                 };
+            User CurrentUser = HttpContext.Current.Session["User"] as User;
+            List<Search> searches = db.Searches.Where(w => w.codeUser == CurrentUser.codeUser && w.status!=2).ToList();
             return new WebResult<List<SearchDTO>>
             {
                 Message = "חיפושי המשתמש נשלחו בהצלחה",
-                Value = SearchCast.GetSearchesDTO(db.Searches.Where(w => w.codeUser == userId && w.status != 2).ToList()),
+                Value = SearchCast.GetSearchesDTO(searches),
                 Status = true
             };
         }

@@ -20,12 +20,12 @@ namespace BL
     {
         public static ProjectEntities db = new ProjectEntities();
         //הרשמה
-        public async static Task<WebResult<LoginData>> Register(ShopDTO shopDto, Uri request)
+        public async static Task<WebResult<LoginData<ShopDTO>>> Register(ShopDTO shopDto, Uri request)
         {
             if (db.Shops.FirstOrDefault(w => w.passwordShop == shopDto.passwordShop) != null ||
                 db.Shops.FirstOrDefault(w => w.mailShop == shopDto.mailShop) != null)//אם יש כבר  כזה מייל או כזו סיסמה  
 
-                return new WebResult<LoginData>
+                return new WebResult<LoginData<ShopDTO>>
                 {
                     Message = "אחד מהפרטים שהוקשו כבר קיים במערכת",
                     Status = false,
@@ -45,20 +45,20 @@ namespace BL
 
                 if (!string.IsNullOrEmpty(accessToken))
                 {
-                    return new WebResult<LoginData>
+                    return new WebResult<LoginData<ShopDTO>>
                     {
                         Status = true,
                         Message = "התחברת בהצלחה",
-                        Value = new LoginData
+                        Value = new LoginData<ShopDTO>
                         {
                             TokenJson = accessToken,
-                            shopDTO = shopDto
+                            objectDTO = shopDto
                         }
                     };
 
                 }
             }
-            return new WebResult<LoginData>
+            return new WebResult<LoginData<ShopDTO>>
             {
                 Status = false,
                 Message = "אין משתמש רשום בשם וסיסמא זו",
@@ -67,7 +67,7 @@ namespace BL
 
         }
         //כניסה
-        public static async Task<WebResult<LoginData>> Login(string mail, string password, Uri requestUri)
+        public static async Task<WebResult<LoginData<ShopDTO>>> Login(string mail, string password, Uri requestUri)
         {
             var shop = db.Shops.Where(w => w.mailShop == mail && w.passwordShop == password).FirstOrDefault();
             if (shop != null)//אם המשתמש קיים במאגר המשך לקבלת טוקן, אחרת החזר שגיאה שהמתשמש לא קיים
@@ -87,19 +87,19 @@ namespace BL
                 var accessToken = await GetTokenDataAsync(shopDto.mailShop, shopDto.passwordShop, requestUri);
                 if (!string.IsNullOrEmpty(accessToken))
                 {
-                    return new WebResult<LoginData>
+                    return new WebResult<LoginData<ShopDTO>>
                     {
                         Status = true,
                         Message = "התחברת בהצלחה",
-                        Value = new LoginData
+                        Value = new LoginData<ShopDTO>
                         {
                             TokenJson = accessToken,
-                            shopDTO = shopDto
+                            objectDTO = shopDto
                         }
                     };
                 }
             }
-            return new WebResult<LoginData>
+            return new WebResult<LoginData<ShopDTO>>
             {
                 Status = false,
                 Message = " אין משתמש רשום בשם וסיסמא זו  ",
@@ -108,7 +108,7 @@ namespace BL
 
         }
         //עדכון חנות עם קטגוריות
-        public static WebResult<ShopDTO> Update(ShopDTO shopDTO)//הסיסמה לא השתנתה, לא הייתה לו אפשרות
+        public static WebResult<ShopDTO> Update(ShopDTO shopDTO)
         {
             //אבטחה, אם המשתמש השתנה לא בצורה נכונה
             //if (shopDTO.codeShop != (HttpContext.Current.Session["Shop"] as Shop).codeShop)
@@ -118,8 +118,8 @@ namespace BL
             //        Value = null,
             //        Status = false
             //    };
-            Shop shop = db.Shops.Find(shopDTO.codeShop);
-            //הקוד בעיקרון לא היה יכול להשתנות, אבל ליתר ביטחון...
+            Shop shop = db.Shops.FirstOrDefault(f=>f.mailShop==shopDTO.mailShop);
+            //למייל אסור להשתנות
             if (shop == null)
                 return new WebResult<ShopDTO>
                 {

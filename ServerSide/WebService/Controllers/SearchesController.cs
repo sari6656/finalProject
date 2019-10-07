@@ -27,6 +27,6 @@ namespace WebService.Controllers
         {
             return Ok(Searches.GetSearchesByUserId());
         }
-       
+
     }
 }

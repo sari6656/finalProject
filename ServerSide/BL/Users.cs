@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BL.Casting;
 using BL.Helpers;
 using System.Web;
+using System.Net.Http;
 
 namespace BL
 {
@@ -36,6 +37,44 @@ namespace BL
                 Status = true
             };
         }
+        //הרשמה עם טוקן
+        public async static Task<WebResult<LoginData<UserDTO>>> RegisterToken(UserDTO userDTO, Uri request)
+        {
+            if (db.Users.FirstOrDefault(f => f.passwordUser == userDTO.passwordUser) != null ||
+                db.Users.FirstOrDefault(f => f.mailUser == userDTO.mailUser) != null)
+                return new WebResult<LoginData<UserDTO>>()
+                {
+                    Message = "אחד מהפרטים שהוקשו כבר קיים במערכת",
+                    Status = false,
+                    Value = null
+                };
+            db.Users.Add(UserCast.GetUser(userDTO));
+            if (db.SaveChanges() > 0)
+            {
+                var accessToken = await GetTokenDataAsync(userDTO.mailUser, userDTO.passwordUser, request);
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    return new WebResult<LoginData<UserDTO>>
+                    {
+                        Status = true,
+                        Message = "התחברת בהצלחה",
+                        Value = new LoginData<UserDTO>
+                        {
+                            TokenJson = accessToken,
+                            objectDTO = userDTO
+                        }
+                    };
+                }
+            }
+            return new WebResult<LoginData<UserDTO>>()
+            {
+                Status = false,
+                Message = "הרשמה נכשלה",
+                Value = null
+            };
+        }
+
+
         //כניסה אם המשתמש רוצה לשנות את הפרטים שלו, לא קשור לחיפושים
         public static WebResult<UserDTO> Login(string email, string password)
         {
@@ -55,16 +94,47 @@ namespace BL
                 Status = true
             };
         }
+        //כניסה עם טוקן
+        public static async Task<WebResult<LoginData<UserDTO>>> LoginToken(string email, string password, Uri requestUri)
+        {
+            var user = db.Users.Where(w => w.mailUser == email && w.passwordUser == password).FirstOrDefault();
+            if (user != null)
+            {
+                UserDTO userDTO = UserCast.GetUserDTO(user);
+                var accessToken = await GetTokenDataAsync(userDTO.mailUser, userDTO.passwordUser, requestUri);
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    return new WebResult<LoginData<UserDTO>>
+                    {
+                        Status = true,
+                        Message = "התחברת בהצלחה",
+                        Value = new LoginData<UserDTO>
+                        {
+                            TokenJson = accessToken,
+                            objectDTO = userDTO
+                        }
+                    };
+                }
+            }
+            return new WebResult<LoginData<UserDTO>>
+            {
+                Status = false,
+                Message = " אין משתמש רשום בשם וסיסמא זו  ",
+                Value = null
+            };
+        }
+
+
         //עריכה של פרטי המשתמש ולא של החיפושים שלו
         public static WebResult<UserDTO> Update(UserDTO user)
         {
-            if (user.codeUser != (HttpContext.Current.Session["User"] as User).codeUser)
-                return new WebResult<UserDTO>
-                {
-                    Message = "שגיאת אבטחה, משתמש לא תואם",
-                    Value = null,
-                    Status = false
-                };
+            //if (user.codeUser != (HttpContext.Current.Session["User"] as User).codeUser)
+            //    return new WebResult<UserDTO>
+            //    {
+            //        Message = "שגיאת אבטחה, משתמש לא תואם",
+            //        Value = null,
+            //        Status = false
+            //    };
             User userDB = db.Users.FirstOrDefault(u => u.mailUser == user.mailUser);
             if (user == null)
                 return new WebResult<UserDTO>
@@ -105,6 +175,21 @@ namespace BL
                 Value = UserCast.GetUserDTO(user),
                 Status = true
             };
+        }
+
+        //הפונקציה מכניסה לטוקן את המשתמש
+        private static async Task<string> GetTokenDataAsync(string username, string password, Uri req)
+        {
+            HttpClient httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(req.Scheme + "://" + req.Authority + "/token");
+            var postData = new List<KeyValuePair<string, string>>();
+            postData.Add(new KeyValuePair<string, string>("UserName", username));
+            postData.Add(new KeyValuePair<string, string>("Password", password));
+            postData.Add(new KeyValuePair<string, string>("grant_type", "password"));//don't dare to change that!!!
+            HttpContent content = new FormUrlEncodedContent(postData);
+            HttpResponseMessage response = await httpClient.PostAsync("token", content);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

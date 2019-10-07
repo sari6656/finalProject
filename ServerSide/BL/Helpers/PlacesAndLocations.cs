@@ -1,9 +1,13 @@
 ﻿using DAL;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using log4net;
+using System.IO;
+using System.Data.SqlClient;
 
 namespace BL.Helpers
 {
@@ -43,15 +47,16 @@ namespace BL.Helpers
             return d;// returns the distance in meter
         }
 
-        //פונקציה זו, כל 6 שניות מדפיסה את התאריך, כנראה שלא יהיה נצרך
+        //פונקציה זו, כל 6 שניות מדפיסה את התאריך
         public static void Timer()
         {
+           
             var startTimeSpan = TimeSpan.Zero;
             var periodTimeSpan = TimeSpan.FromMinutes(0.1);
 
             var timer = new System.Threading.Timer((e) =>
-            {
-                Console.WriteLine(DateTime.Now);
+            {   
+                Console.Write(DateTime.Now);
             }, null, startTimeSpan, periodTimeSpan);
         }
     }

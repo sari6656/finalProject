@@ -11,9 +11,9 @@ namespace WebService.Controllers
     [RoutePrefix("API/User")]
     public class UsersController : Controller
     {
-        [Route("register")]
+        [Route("Register")]
         [HttpPost]
-        public WebResult<UserDTO> register(UserDTO user)
+        public WebResult<UserDTO> Register(UserDTO user)
         {
             return BL.Users.Register(user);
         }

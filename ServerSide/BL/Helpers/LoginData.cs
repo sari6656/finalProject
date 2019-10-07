@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace BL.Helpers
 {
-    public class LoginData
+    public class LoginData<T>
     {
         public string TokenJson { get; set; }
 
-        public ShopDTO shopDTO { get; set; }
+        public T objectDTO { get; set; }
     }
 }

@@ -547,3 +547,5 @@ C:\Users\USER\Desktop\הפרוייקט הסופי\finalProject\ServerSide\BL\obj
 C:\Users\USER\Desktop\הפרוייקט הסופי\finalProject\ServerSide\BL\obj\Debug\BL.csproj.CopyComplete
 C:\Users\USER\Desktop\הפרוייקט הסופי\finalProject\ServerSide\BL\obj\Debug\BL.dll
 C:\Users\USER\Desktop\הפרוייקט הסופי\finalProject\ServerSide\BL\obj\Debug\BL.pdb
+C:\Users\USER\Desktop\הפרוייקט הסופי\finalProject\ServerSide\BL\bin\Debug\log4net.dll
+C:\Users\USER\Desktop\הפרוייקט הסופי\finalProject\ServerSide\BL\bin\Debug\log4net.xml
